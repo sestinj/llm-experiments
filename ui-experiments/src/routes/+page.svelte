@@ -1,4 +1,8 @@
 <script lang="ts">
+    import {taskQueue, logs} from "../store";
+    import TaskCard from "../lib/TaskCard.svelte";
+    import {taskData} from "../taskData";
+    import type {Task} from "../taskData";
 
     /** Thoughts
      * What if you could include a delimeter that indicated "exact" phrases, like commands? For example, if you typed "[search]", then all of the text around it would get scooped up as context and processed by some predetermined search action. Might also want explicit parameters like "[search](how to tie a knot)".
@@ -7,7 +11,10 @@
 
     let taskSet = new Set<Task>();
 
-    type Task = string;
+    function addLog(log: string) {
+        $logs[$logs.length] = log;
+    }
+
     type TaskFinder = (fullText: string) => Task[];
     const taskFinders = [
         (fullText: string) => {
@@ -16,15 +23,9 @@
             let sentences = fullText.split(".");
             let lastSentence = sentences[sentences.length - 1];
 
-            let keywordsMap = {
-                "Order Food": ["food", "hungry"],
-                "Order an Uber": ["transportation", "car", "uber", "lyft"],
-                "Search Google": ["wonder", "why", "how to"]
-            }
-
-            for (let [task, keywords] of Object.entries(keywordsMap)) {
+            for (let task of taskData) {
                 if (taskSet.has(task)) continue;
-                for (let keyword of keywords) {
+                for (let keyword of task.keywords) {
                     if (lastSentence.includes(keyword)) {
                         tasks.push(task);
                     }
@@ -34,15 +35,11 @@
         }
     ]
 
-    let taskDiv: HTMLDivElement;
-
     function pinchTask(task: Task) {
         if (taskSet.has(task)) return;
         taskSet.add(task);
+        $taskQueue[$taskQueue.length]= task;
         console.log(task);
-        let el = document.createElement("div");
-        el.innerHTML = task;
-        taskDiv.appendChild(el);
     }
 
     function handleEvent(event: InputEvent) {
@@ -65,14 +62,22 @@
 </script>
 
 
-<h1>{"<textarea++>"}</h1>
+<h1>{"<textarea++ />"}</h1>
 
 <div id="magic-div-outer">
     <textarea rows="20" class="magic-textarea" on:input={handleEvent}></textarea>
-    <div id="magic-div-inner" bind:this={taskDiv}>
-        
+    <div id="magic-div-inner">
+        {#each $taskQueue as task}
+            <TaskCard {task} addLog={addLog}></TaskCard>
+        {/each}
     </div>
 </div>
+
+<pre class="log-output">
+    {#each $logs as log}
+        <div>{log}</div>
+    {/each}
+</pre>
 
 <style>
     .magic-textarea {
@@ -96,10 +101,14 @@
     }
 
     #magic-div-inner {
-        /* background-color: white; */
-        /* width: 100px; */
+        background-color: #fff6;
+        width: 50%;
         border-radius: 12px;
         /* border: 1px solid gray; */
     }
 
+    .log-output {
+        background-color: #fff6;
+        border-radius: 12px;
+    }
 </style>
