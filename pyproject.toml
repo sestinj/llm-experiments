@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "llm"
+version = "0.1.0"
+description = ""
+authors = ["sestinj <sestinj@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+transformers = "^4.21.0"
+torch = "^1.12.0"
+torchvision = "^0.13.0"
+torchaudio = "^0.12.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
