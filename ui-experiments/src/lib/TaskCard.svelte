@@ -3,6 +3,7 @@
 
     export let task: Task;
     export let addLog: (log: string) => void;
+    export let tabindex: number;
 
     const timing = 5;
 
@@ -16,10 +17,11 @@
 
 </script>
 
-<div class="task-card" bind:this={selfRef} on:click={() => {
+<div class="task-card" {tabindex} bind:this={selfRef} on:click={() => {
     clearTimeout(timer);
     cleared = true;
     addLog(`Executing task: ${task.title}`);
+    selfRef.remove();
 }}>
     <div class="task-contents">
         <img src={task.imageUrl} alt={task.title} class="task-card-img">
